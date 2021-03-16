@@ -20,11 +20,16 @@ public class AESUtil {
     private Key secureKey;
     private IvParameterSpec ivParam;
 
-    public AESUtil() throws NoSuchAlgorithmException, NoSuchPaddingException {
+    public AESUtil() { }
+
+    public static AESUtil getInstance(){
+        return AESHolder.instance;
+    }
+
+    public void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
         cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         createKey();
     }
-
     private void createKey() throws NoSuchAlgorithmException {
         KeyGenerator kg = KeyGenerator.getInstance("AES"); // 대칭키 생성을 위한 generator
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG"); //
@@ -61,5 +66,8 @@ public class AESUtil {
     }
    
 
+    public static class AESHolder{
+        private static final AESUtil instance = new AESUtil();
+    }
 
 }

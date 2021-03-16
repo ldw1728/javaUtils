@@ -27,7 +27,8 @@ public final class App {
      */
     public static void main(String[] args) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         try {
-            AESUtil aes = new AESUtil();
+            AESUtil aes = AESUtil.getInstance();
+            aes.init();
             String str = aes.encrypt("안녕하세요");
             System.out.println(str);
             str = aes.decrypt(str);
