@@ -5,9 +5,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 public class SHAUtil {
-    //암호화
+    //암호화 + 솔트
     public static String encrypt(String str, String salt) throws NoSuchAlgorithmException{
         byte[] hashingData = hashingString(str + salt);
+        return byteToHexString(hashingData);
+    }
+    //암호화
+    public static String encrypt(String str) throws NoSuchAlgorithmException{
+        byte[] hashingData = hashingString(str);
         return byteToHexString(hashingData);
     }
     //문자열 해싱
@@ -19,7 +24,7 @@ public class SHAUtil {
     //바이트배열을 16진수 문자열로
     private static String byteToHexString(byte[] byteData){
         StringBuilder sb = new StringBuilder();
-        for(byte b : byteData){
+        for(byte b : byteData){ 
             sb.append(String.format("%02x", b));
         }
         return sb.toString();
