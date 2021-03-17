@@ -30,9 +30,15 @@ public final class App {
             AESUtil aes = AESUtil.getInstance();
             aes.init();
             String str = aes.encrypt("안녕하세요");
+            System.out.println("안녕하세요");
             System.out.println(str);
             str = aes.decrypt(str);
             System.out.println(str);
+            
+            String salt1 = SHAUtil.getRandomSalt();
+            String salt2 = SHAUtil.getRandomSalt();
+            System.out.println("이동욱입니다." + " => " + SHAUtil.encrypt("이동욱입니다.", salt1));
+            System.out.println("이동욱입니다." + " => " + SHAUtil.encrypt("이동욱입니다.", salt2));
 
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
