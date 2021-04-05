@@ -14,11 +14,14 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class AESUtil extends EncryptUtil{
-    
+
+    private static final String key = "qwertasdfg123456"; //고정키
+
     private Cipher cipher;
-    private Key secureKey;
+    private SecretKeySpec secretKeySpec;
     private IvParameterSpec ivParam;
 
     public AESUtil() { }
@@ -27,31 +30,39 @@ public class AESUtil extends EncryptUtil{
         return AESHolder.instance;
     }
 
-    public void init() throws NoSuchAlgorithmException, NoSuchPaddingException {
+    public void init(boolean dynamicUse) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
         cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        createKey();
+        createKey(dynamicUse);
     }
-    private void createKey() throws NoSuchAlgorithmException {
-        KeyGenerator kg = KeyGenerator.getInstance("AES"); // 대칭키 생성을 위한 generator
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG"); //
-        // 랜덤 키를 생성하기 위한 클래스, 혹은 임의로 지정해서 사용가능
+    private void createKey(boolean dynamicUse) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 
-        // String key = "qwertasdfg123456";
-        // SecretKeySpec keySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
-        // 지정키 사용시 SecretKeySpec객체 생성.
-        kg.init(128, sr);
-        secureKey = kg.generateKey();
+        byte[] keyBytes = null;
 
-        ivParam = new IvParameterSpec(sr.generateSeed(16));
+        if(dynamicUse == true){ //동적 키 사용
+            KeyGenerator kg = KeyGenerator.getInstance("AES"); // 대칭키 생성을 위한 generator
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG"); //
+            // 랜덤 키를 생성하기 위한 클래스, 혹은 임의로 지정해서 사용가능
+
+            kg.init(128, sr);
+            Key secureKey = kg.generateKey();
+            keyBytes = secureKey.getEncoded();
+        }
+        else{ //고정 키 사용
+            keyBytes = key.getBytes("UTF-8");
+        }
+
+        secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+
+        ivParam = new IvParameterSpec(keyBytes);
         // CBC모드에 필요한 Init Value Param
-
     }
+
     //암호화
     @Override
     public String encrypt(String str) throws InvalidKeyException, InvalidAlgorithmParameterException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         
-        cipher.init(Cipher.ENCRYPT_MODE, secureKey, ivParam);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParam);
         byte[] encryptData = cipher.doFinal(str.getBytes("UTF-8"));
         String encStr = new String(Base64.getEncoder().encodeToString(encryptData));
         
@@ -61,14 +72,18 @@ public class AESUtil extends EncryptUtil{
     @Override
     public String decrypt(String str) throws InvalidKeyException, InvalidAlgorithmParameterException,
             UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
-        cipher.init(Cipher.DECRYPT_MODE, secureKey, ivParam);
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParam);
         byte[] decryptData = Base64.getDecoder().decode(str);
         String decStr = new String(cipher.doFinal(decryptData),"UTF-8");
 
         return decStr;
     }
-   
 
+    //key getter
+    public SecretKeySpec getsecretKeySpec(){
+        return this.secretKeySpec;
+    }
+   
     public static class AESHolder{
         private static final AESUtil instance = new AESUtil();
     }
