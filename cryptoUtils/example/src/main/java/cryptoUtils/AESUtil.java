@@ -15,7 +15,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 
-public class AESUtil {
+public class AESUtil extends EncryptUtil{
+    
     private Cipher cipher;
     private Key secureKey;
     private IvParameterSpec ivParam;
@@ -46,6 +47,7 @@ public class AESUtil {
 
     }
     //암호화
+    @Override
     public String encrypt(String str) throws InvalidKeyException, InvalidAlgorithmParameterException,
             IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
         
@@ -56,6 +58,7 @@ public class AESUtil {
         return encStr;
     }
     //복호화
+    @Override
     public String decrypt(String str) throws InvalidKeyException, InvalidAlgorithmParameterException,
             UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException {
         cipher.init(Cipher.DECRYPT_MODE, secureKey, ivParam);
@@ -68,6 +71,13 @@ public class AESUtil {
 
     public static class AESHolder{
         private static final AESUtil instance = new AESUtil();
+    }
+
+
+    @Override
+    String encrypt(String str, String salt) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
