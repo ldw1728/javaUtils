@@ -37,6 +37,10 @@ public class RSAUtil extends EncryptUtil{
     }
 
     //키 생성
+    /**
+     * generateKeyPair를 호출시 개인키와 공개키를 생성.
+     * 개인키는 서버에, 공개키는 클라이언트에 보관.
+     */
     public void generateKeyPair(){
         try {
              
@@ -111,3 +115,9 @@ public class RSAUtil extends EncryptUtil{
 
     
 }
+/**
+ * 서버와 클라이언트 rsa동작
+ * front에서는 서버로 부터 modulus, exponent값을 받아와 
+ * js로 RSA공개키를 생성하고 암호화를 하여 그 값을 서버로 보낸다.
+ * 서버는 session에 저장된 개인키를 이용하여 복호화한다.
+ */
