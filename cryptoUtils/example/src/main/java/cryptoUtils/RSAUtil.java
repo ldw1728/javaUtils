@@ -27,6 +27,19 @@ public class RSAUtil extends EncryptUtil{
     private Cipher cipher;
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
+    private KeyFactory kf;
+    private RSAPublicKeySpec publicSpec;
+
+    public RSAUtil(){
+        try {
+
+            this.cipher = Cipher.getInstance("RSA");
+            this.kf = KeyFactory.getInstance("RSA");
+
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {            
+            e.printStackTrace();
+        }
+    }
 
     public static RSAUtil getInstance(){
         return RSAHolder.instance;
@@ -36,12 +49,35 @@ public class RSAUtil extends EncryptUtil{
         private static final RSAUtil instance = new RSAUtil();
     }
 
+    
+    public void init(RSAPrivateKey privateKey, RSAPublicKey publicKey){
+       this.privateKey = privateKey;
+       this.publicKey = publicKey;
+       try {
+        publicSpec = kf.getKeySpec(this.publicKey, RSAPublicKeySpec.class);
+    } catch (InvalidKeySpecException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+    }
+
+    //키 초기화
+    public void init(){       
+            generateKeyPair(); // 키 새로생성.            
+        try {
+            publicSpec = kf.getKeySpec(this.publicKey, RSAPublicKeySpec.class);
+        } catch (InvalidKeySpecException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     //키 생성
     /**
      * generateKeyPair를 호출시 개인키와 공개키를 생성.
      * 개인키는 서버에, 공개키는 클라이언트에 보관.
      */
-    public void generateKeyPair(){
+    private void generateKeyPair(){
         try {
              
             //Security.addProvider(new BouncyCastleProvider());
@@ -63,25 +99,61 @@ public class RSAUtil extends EncryptUtil{
 
     //암호화
     @Override
-    public String encrypt(String str) throws NoSuchAlgorithmException,
-     NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException,
-      BadPaddingException, UnsupportedEncodingException{
-
-        cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.ENCRYPT_MODE, this.publicKey);
-        byte[] encryptBytes = cipher.doFinal(str.getBytes("UTF-8"));
-        return new String(Base64.getEncoder().encodeToString(encryptBytes));
+    public String encrypt(String str) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+        if(this.publicKey == null || "".equals(this.publicKey)){
+            return "";
+        }
+        return encrypt_temp(str, this.publicKey);
     }
+
+    public String encrypt(String str, RSAPublicKey publicKey) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
+        return encrypt_temp(str, publicKey);
+    }
+
+    private String encrypt_temp(String str, RSAPublicKey publicKey ) throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException{
+        
+        String result = "";
+        try{
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] encryptBytes = cipher.doFinal(str.getBytes("UTF-8"));
+            result = new String(Base64.getEncoder().encodeToString(encryptBytes));
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            return result;
+        }              
+    }
+    
     //복호화
     @Override
     public String decrypt(String str) throws NoSuchAlgorithmException, 
     NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, 
     IllegalBlockSizeException, BadPaddingException{
+        if(this.privateKey == null || "".equals(this.privateKey)){
+            return "";
+        }
+        return decrypt_temp(str, this.privateKey);
+    }
 
-        cipher = Cipher.getInstance("RSA");
-        cipher.init(Cipher.DECRYPT_MODE, this.privateKey);
-        byte[] decryptBytes = Base64.getDecoder().decode(str.getBytes());
-        return new String(cipher.doFinal(decryptBytes), "UTF-8");
+    public String decrypt(String str, RSAPrivateKey privateKey) throws NoSuchAlgorithmException, 
+    NoSuchPaddingException, InvalidKeyException, UnsupportedEncodingException, 
+    IllegalBlockSizeException, BadPaddingException{
+        return decrypt_temp(str, privateKey);
+    }
+
+    private String decrypt_temp(String str, RSAPrivateKey privateKey) throws InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException{
+        String result = "";
+        try{
+            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] decryptBytes = Base64.getDecoder().decode(str.getBytes());
+            result = new String(cipher.doFinal(decryptBytes), "UTF-8");
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            return result;
+        }
+        
     }
 
     public RSAPrivateKey getPrivateKey() {
@@ -101,10 +173,22 @@ public class RSAUtil extends EncryptUtil{
     }
 
     //client의 공개키 정보를 받아와 publickey생성
-    public void setPublicKey(BigInteger modulus, BigInteger exponent) throws NoSuchAlgorithmException, InvalidKeySpecException{
+    public RSAPublicKey getPublicKey(BigInteger modulus, BigInteger exponent) throws NoSuchAlgorithmException, InvalidKeySpecException{
         KeyFactory kf = KeyFactory.getInstance("RSA");
         RSAPublicKeySpec keySpec = new RSAPublicKeySpec(modulus, exponent);
-        this.publicKey = (RSAPublicKey) kf.generatePublic(keySpec);
+        return (RSAPublicKey) kf.generatePublic(keySpec);
+    }
+
+    //publickey "MODULUS", "EXPONENT" 가져오기
+    public String getPublicKey_elements(String name){
+        if(this.publicSpec != null){
+            if("MODULUS".equals(name)){
+                return publicSpec.getModulus().toString(16);
+            }
+            else if("EXPONENT".equals(name)) 
+                return publicSpec.getPublicExponent().toString(16);          
+        }
+            return null;       
     }
 
     @Override
@@ -117,7 +201,9 @@ public class RSAUtil extends EncryptUtil{
 }
 /**
  * 서버와 클라이언트 rsa동작
+ * 서버에서 Public key, private key 생성
+ * public key를 이용하여 modulus, exponent 생성 및 front로 전송.
  * front에서는 서버로 부터 modulus, exponent값을 받아와 
- * js로 RSA공개키를 생성하고 암호화를 하여 그 값을 서버로 보낸다.
+ * js로 RSA공개키를 생성하고 데이터를 암호화를 하여 암호화된 데이터를 서버로 보낸다.
  * 서버는 session에 저장된 개인키를 이용하여 복호화한다.
  */
