@@ -39,7 +39,7 @@ public class AESUtil extends EncryptUtil{
         byte[] keyBytes = null;
 
         if(dynamicUse == true){ //동적 키 사용
-            KeyGenerator kg = KeyGenerator.getInstance("AES"); // 대칭키 생성을 위한 generator
+            KeyGenerator kg = KeyGenerator.getInstance("AES"); // 대칭키 생성을 위한 generator(대칭키를 위한 seceretKey 생성하는 엔진클래스)
             SecureRandom sr = SecureRandom.getInstance("SHA1PRNG"); //
             // 랜덤 키를 생성하기 위한 클래스, 혹은 임의로 지정해서 사용가능
 

@@ -24,7 +24,7 @@ public class RSAUtil extends EncryptUtil{
 
     private final static int KEY_SIZE = 1024; //일반적으로 1024이상이 쓰여진다. 보안상.
 
-    private Cipher cipher;
+    private Cipher cipher; //암호화/복호화를 담당하는 클래스 
     private RSAPrivateKey privateKey;
     private RSAPublicKey publicKey;
     private KeyFactory kf;
@@ -33,7 +33,7 @@ public class RSAUtil extends EncryptUtil{
     public RSAUtil(){
         try {
 
-            this.cipher = Cipher.getInstance("RSA");
+            this.cipher = Cipher.getInstance("RSA"); //알고리즘을 선택하여 인스턴스를 가져온다.
             this.kf = KeyFactory.getInstance("RSA");
 
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {            
@@ -83,10 +83,10 @@ public class RSAUtil extends EncryptUtil{
             //Security.addProvider(new BouncyCastleProvider());
             //확장된 기능을 가진 암호 라이브러리 BouncyCastleProvider
 
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA"); //비대칭키 생성을 위한 keyPairGenerator
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA"); //비대칭키 생성을 위한 keyPairGenerator(공개키, 개인키 같은 키쌍을 생성할때 사용되는 엔진.)
             keyGen.initialize(KEY_SIZE);
 
-            KeyPair keyPair = keyGen.generateKeyPair();
+            KeyPair keyPair = keyGen.generateKeyPair(); //키 쌍 객체 생성.
             
             this.privateKey = (RSAPrivateKey) keyPair.getPrivate(); //개인키 생성.
             this.publicKey = (RSAPublicKey) keyPair.getPublic(); //공개키 생성.
@@ -114,7 +114,7 @@ public class RSAUtil extends EncryptUtil{
         
         String result = "";
         try{
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey); //암호화모드
             byte[] encryptBytes = cipher.doFinal(str.getBytes("UTF-8"));
             result = new String(Base64.getEncoder().encodeToString(encryptBytes));
 
@@ -124,7 +124,7 @@ public class RSAUtil extends EncryptUtil{
             return result;
         }              
     }
-    
+
     //복호화
     @Override
     public String decrypt(String str) throws NoSuchAlgorithmException, 
@@ -145,7 +145,7 @@ public class RSAUtil extends EncryptUtil{
     private String decrypt_temp(String str, RSAPrivateKey privateKey) throws InvalidKeyException, UnsupportedEncodingException, IllegalBlockSizeException, BadPaddingException{
         String result = "";
         try{
-            cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            cipher.init(Cipher.DECRYPT_MODE, privateKey); //복호화모드
             byte[] decryptBytes = Base64.getDecoder().decode(str.getBytes());
             result = new String(cipher.doFinal(decryptBytes), "UTF-8");
         }catch(Exception e){
