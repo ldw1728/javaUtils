@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,15 +19,9 @@ public final class App {
     /**
      * Says hello to the world.
      * @param args The arguments of the program.
-     * @throws UnsupportedEncodingException
-     * @throws BadPaddingException
-     * @throws IllegalBlockSizeException
-     * @throws InvalidAlgorithmParameterException
-     * @throws InvalidKeyException
-     * @throws NoSuchPaddingException
-     * @throws NoSuchAlgorithmException
+     * @throws Exception
      */
-    public static void main(String[] args) throws InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException {
+    public static void main(String[] args) throws Exception {
 
         // SHA암호화 예제.
         // try {
@@ -88,17 +81,22 @@ public final class App {
             // System.out.println("복호화 : " + decStr);
 
             //RSA
-            RSAUtil rsaUtil = (RSAUtil) EncryptFactory.getEncrypt("RSA");
-            //rsaUtil.generateKeyPair();
-            rsaUtil.init();
-            String str = "안녕하세요 이동욱입니다.";
-            String encStr = rsaUtil.encrypt(str);
-            System.out.println("개인키 : " + rsaUtil.getPrivateKey());
-            System.out.println("공개키 : " + rsaUtil.getPublicKey());
-            System.out.println("공개키를 이용한 암호화 : "+ encStr);
-            //rsaUtil.init(); //키를 다시생성하여 복호화할 경우 개인키가 달라지므로 에러가 발생.
-            System.out.println("복호화 : " + rsaUtil.decrypt(encStr));
+            // RSAUtil rsaUtil = (RSAUtil) EncryptFactory.getEncrypt("RSA");
+            // //rsaUtil.generateKeyPair();
+            // rsaUtil.init();
+            // String str = "안녕하세요 이동욱입니다.";
+            // String encStr = rsaUtil.encrypt(str);
+            // System.out.println("개인키 : " + rsaUtil.getPrivateKey());
+            // System.out.println("공개키 : " + rsaUtil.getPublicKey());
+            // System.out.println("공개키를 이용한 암호화 : "+ encStr);
+            // //rsaUtil.init(); //키를 다시생성하여 복호화할 경우 개인키가 달라지므로 에러가 발생.
+            // System.out.println("복호화 : " + rsaUtil.decrypt(encStr));
             
 
+            EncryptUtil pbkd = EncryptFactory.getEncrypt("PBKDF2");
+            System.out.println(pbkd.encrypt("wooklee"));
+
+            
+            
     }
 }

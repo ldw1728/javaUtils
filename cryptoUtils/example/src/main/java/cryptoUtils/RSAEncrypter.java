@@ -20,7 +20,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class RSAUtil extends EncryptUtil{
+public class RSAEncrypter implements EncryptUtil{
 
     private final static int KEY_SIZE = 1024; //일반적으로 1024이상이 쓰여진다. 보안상.
 
@@ -29,8 +29,8 @@ public class RSAUtil extends EncryptUtil{
     private RSAPublicKey publicKey;
     private KeyFactory kf;
     private RSAPublicKeySpec publicSpec;
-
-    public RSAUtil(){
+    
+    public RSAEncrypter(){
         try {
 
             this.cipher = Cipher.getInstance("RSA"); //알고리즘을 선택하여 인스턴스를 가져온다.
@@ -41,12 +41,12 @@ public class RSAUtil extends EncryptUtil{
         }
     }
 
-    public static RSAUtil getInstance(){
+    public static RSAEncrypter getInstance(){
         return RSAHolder.instance;
     }
 
     public static class RSAHolder{
-        private static final RSAUtil instance = new RSAUtil();
+        private static final RSAEncrypter instance = new RSAEncrypter();
     }
 
     
@@ -192,9 +192,9 @@ public class RSAUtil extends EncryptUtil{
     }
 
     @Override
-    String encrypt(String str, String salt) throws Exception {
+    public String encrypt(String str, String salt) throws Exception {
         // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("Unimplemented method 'encrypt'");
     }
 
     

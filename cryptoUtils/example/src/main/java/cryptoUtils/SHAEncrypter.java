@@ -4,9 +4,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-public class SHAUtil extends EncryptUtil{
+public class SHAEncrypter implements EncryptUtil{
 
-    public static SHAUtil getInstance(){
+    public static SHAEncrypter getInstance(){
         return SHAHolder.instance;
     }
     
@@ -46,11 +46,11 @@ public class SHAUtil extends EncryptUtil{
     }
 
     public static class SHAHolder{
-        private static final SHAUtil instance = new SHAUtil();
+        private static final SHAEncrypter instance = new SHAEncrypter();
     }
 
     @Override
-    String decrypt(String str) throws Exception {
+    public String decrypt(String str) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

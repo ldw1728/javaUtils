@@ -16,7 +16,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class AESUtil extends EncryptUtil{
+public class AESEncrypter implements EncryptUtil{
 
     private static final String key = "qwertasdfg123456"; //고정키
 
@@ -24,9 +24,9 @@ public class AESUtil extends EncryptUtil{
     private SecretKeySpec secretKeySpec;
     private IvParameterSpec ivParam;
 
-    public AESUtil() { }
+    public AESEncrypter() { }
 
-    public static AESUtil getInstance(){
+    public static AESEncrypter getInstance(){
         return AESHolder.instance;
     }
 
@@ -85,12 +85,12 @@ public class AESUtil extends EncryptUtil{
     }
    
     public static class AESHolder{
-        private static final AESUtil instance = new AESUtil();
+        private static final AESEncrypter instance = new AESEncrypter();
     }
 
 
     @Override
-    String encrypt(String str, String salt) throws Exception {
+    public String encrypt(String str, String salt) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
